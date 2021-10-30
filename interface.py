@@ -2,27 +2,51 @@
 import json
 from tkinter import *
 
+from annotation import parse_node
+
+
 class interface:
 
-    def __init__(self):
+    def __init__(self, conn):
         self.window = Tk()
         self.window.geometry("1030x750")
         self.window.title("cz4031 Project 2")
+        self.db_cursor = conn.cursor()
 
 
     def submit(self):
         #save input
         text = self.panel_1_textarea.get("1.0", "end-1c")
+        if not text.lower().startswith("explain"):
+            text = f"explain analyze {text}"
         with open('test.txt', 'w') as file_object:
             file_object.write(text)
 
-        #load input
+        # save qep
+        self.db_cursor.execute(text)
+        qep_lines = []
+        for (qep_line,) in self.db_cursor.fetchall():
+            qep_lines.append(qep_line)
+        with open('qep.txt', 'w') as file_object:
+            for line in qep_lines:
+                print(line)
+                file_object.write(line + "\n")
+
+        # save parsed qep
+        qep_json = ""
+        try:
+            node, _ = parse_node(qep_lines)
+            qep_json = node.to_json_pretty()
+            # print(f"qep_json: {node.to_json()}")
+        except ValueError as e:
+            print(f"got Exception: {e}")
+        with open('qep.json', 'w') as file_object:
+            file_object.write(qep_json)
+
+        # display
         self.panel_2_textarea.configure(state='normal')
         self.panel_2_textarea.delete('1.0', END)
-        #this suppose to be in json
-        with open('test.txt', 'r') as file:
-            output = file.read()
-        self.panel_2_textarea.insert(END,output)
+        self.panel_2_textarea.insert(END, qep_json)
         self.panel_2_textarea.configure(state='disabled')
 
     def gui(self):

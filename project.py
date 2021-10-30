@@ -6,11 +6,13 @@ from preprocessing import connect
 from interface import *
 
 if __name__ == "__main__":
+    conn = None
     try:
-        connect()
+        conn = connect()
+        gui = interface(conn)
+        gui.gui()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
-        gui = interface()
-        gui.gui()
-
+        if conn is not None:
+            conn.close()
