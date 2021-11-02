@@ -1,4 +1,4 @@
-#Codes for ui
+# Codes for ui
 import json
 from tkinter import *
 
@@ -6,16 +6,15 @@ from annotation import parse_node
 
 
 class interface:
-
     def __init__(self, conn):
         self.window = Tk()
         self.window.geometry("1030x750")
         self.window.title("cz4031 Project 2")
         self.db_cursor = conn.cursor()
-
+        self.totalSteps = 0
 
     def submit(self):
-        #save input
+        # save input
         text = self.panel_1_textarea.get("1.0", "end-1c")
         if not text.lower().startswith("explain"):
             text = f"explain analyze {text}"
@@ -37,6 +36,14 @@ class interface:
         try:
             node, _ = parse_node(qep_lines)
             qep_json = node.to_json_pretty()
+            ''' Iterate thru json and add steps '''
+            nodeDict = json.loads(qep_json)
+            self.totalSteps = 0
+            self.traverseCountStep(nodeDict)
+            print(self.totalSteps)
+            self.traverseAddStep(nodeDict)
+            print(f"After adding step {nodeDict}")
+            qep_json = json.dumps(nodeDict, indent=4)
             # print(f"qep_json: {node.to_json()}")
         except ValueError as e:
             print(f"got Exception: {e}")
@@ -48,6 +55,27 @@ class interface:
         self.panel_2_textarea.delete('1.0', END)
         self.panel_2_textarea.insert(END, qep_json)
         self.panel_2_textarea.configure(state='disabled')
+
+    ''' Traverse through parsed qep to count steps'''
+
+    def traverseCountStep(self, nodeDict):
+        self.totalSteps += 1
+        if not "children" in nodeDict:
+            return
+        else:
+            for i in range(len(nodeDict['children'])):
+                self.traverseCountStep(nodeDict['children'][i])
+
+    ''' Traverse through parsed qep to add the step '''
+
+    def traverseAddStep(self, nodeDict):
+        nodeDict['step'] = self.totalSteps
+        self.totalSteps -= 1
+        if not "children" in nodeDict:
+            return
+        else:
+            for i in range(len(nodeDict['children'])):
+                self.traverseAddStep(nodeDict['children'][i])
 
     def gui(self):
         # panel1(Userinput)
@@ -78,8 +106,6 @@ class interface:
 
         # Submit button
         self.submitbtn = Button(self.window, text="Submit", relief=RIDGE, font=("arial", 12, "bold"), width=20,
-                           command=self.submit)
+                                command=self.submit)
         self.submitbtn.place(x=300, y=340)
         self.window.mainloop()
-
-
