@@ -1,111 +1,180 @@
 {
-    "name": "Finalize GroupAggregate",
+    "name": "Limit",
     "estimated": {
         "cost": [
-            230662.41,
-            230664.36
+            0.0,
+            1005.3
         ],
-        "rows": 6,
-        "width": 236
+        "rows": 3,
+        "width": 410
     },
     "actual": {
         "actual_time": [
-            3981.67,
-            3982.3
+            0.434,
+            0.52
         ],
-        "rows": 4,
+        "rows": 3,
         "loops": 1
     },
-    "Group_Key": "l_returnflag, l_linestatus",
     "children": [
         {
-            "name": "Gather Merge",
+            "name": "Nested Loop",
             "estimated": {
                 "cost": [
-                    230662.41,
-                    230663.81
+                    0.0,
+                    7104323735.09
                 ],
-                "rows": 12,
-                "width": 236
+                "rows": 21200510,
+                "width": 410
             },
             "actual": {
                 "actual_time": [
-                    3981.652,
-                    3982.268
+                    0.433,
+                    0.518
                 ],
-                "rows": 12,
+                "rows": 3,
                 "loops": 1
             },
-            "Workers_Planned": "2",
-            "Workers_Launched": "2",
+            "Join_Filter": "(c.c_nationkey = s.s_nationkey)",
+            "Rows_Removed_by_Join_Filter": "141",
             "children": [
                 {
-                    "name": "Sort",
+                    "name": "Nested Loop",
                     "estimated": {
                         "cost": [
-                            229662.38,
-                            229662.4
+                            0.0,
+                            7096374211.0
                         ],
-                        "rows": 6,
-                        "width": 236
+                        "rows": 1497020,
+                        "width": 266
                     },
                     "actual": {
                         "actual_time": [
-                            3973.362,
-                            3973.364
+                            0.35,
+                            0.351
                         ],
-                        "rows": 4,
-                        "loops": 3
+                        "rows": 1,
+                        "loops": 1
                     },
-                    "Sort_Key": "l_returnflag, l_linestatus",
+                    "Join_Filter": "(c.c_custkey = o.o_custkey)",
+                    "Rows_Removed_by_Join_Filter": "310",
                     "children": [
                         {
-                            "name": "Partial HashAggregate",
+                            "name": "Seq Scan",
+                            "table": "customer c",
                             "estimated": {
                                 "cost": [
-                                    229662.17,
-                                    229662.3
+                                    0.0,
+                                    5460.0
                                 ],
-                                "rows": 6,
-                                "width": 236
+                                "rows": 149702,
+                                "width": 159
                             },
                             "actual": {
                                 "actual_time": [
-                                    3973.322,
-                                    3973.328
+                                    0.059,
+                                    0.059
                                 ],
-                                "rows": 4,
-                                "loops": 3
+                                "rows": 1,
+                                "loops": 1
                             },
-                            "Group_Key": "l_returnflag, l_linestatus",
+                            "Filter": "(c_custkey > 321)",
+                            "Rows_Removed_by_Filter": "321",
+                            "step": 1
+                        },
+                        {
+                            "name": "Materialize",
+                            "estimated": {
+                                "cost": [
+                                    0.0,
+                                    73498.0
+                                ],
+                                "rows": 1500000,
+                                "width": 107
+                            },
+                            "actual": {
+                                "actual_time": [
+                                    0.028,
+                                    0.261
+                                ],
+                                "rows": 311,
+                                "loops": 1
+                            },
                             "children": [
                                 {
-                                    "name": "Parallel Seq Scan",
-                                    "table": "lineitem",
+                                    "name": "Seq Scan",
+                                    "table": "orders o",
                                     "estimated": {
                                         "cost": [
                                             0.0,
-                                            143755.47
+                                            41095.0
                                         ],
-                                        "rows": 2454477,
-                                        "width": 25
+                                        "rows": 1500000,
+                                        "width": 107
                                     },
                                     "actual": {
                                         "actual_time": [
-                                            0.188,
-                                            2919.346
+                                            0.019,
+                                            0.066
                                         ],
-                                        "rows": 1964206,
-                                        "loops": 3
+                                        "rows": 311,
+                                        "loops": 1
                                     },
-                                    "Filter": "(l_shipdate <= '1998-08-21 00:00:00'::timestamp without time zone)",
-                                    "Rows_Removed_by_Filter": "36199"
+                                    "step": 2
                                 }
-                            ]
+                            ],
+                            "step": 3
                         }
-                    ]
+                    ],
+                    "step": 4
+                },
+                {
+                    "name": "Materialize",
+                    "estimated": {
+                        "cost": [
+                            0.0,
+                            348.77
+                        ],
+                        "rows": 354,
+                        "width": 144
+                    },
+                    "actual": {
+                        "actual_time": [
+                            0.02,
+                            0.147
+                        ],
+                        "rows": 144,
+                        "loops": 1
+                    },
+                    "children": [
+                        {
+                            "name": "Seq Scan",
+                            "table": "supplier s",
+                            "estimated": {
+                                "cost": [
+                                    0.0,
+                                    347.0
+                                ],
+                                "rows": 354,
+                                "width": 144
+                            },
+                            "actual": {
+                                "actual_time": [
+                                    0.013,
+                                    0.083
+                                ],
+                                "rows": 144,
+                                "loops": 1
+                            },
+                            "Filter": "(s_suppkey < 355)",
+                            "step": 5
+                        }
+                    ],
+                    "step": 6
                 }
-            ]
+            ],
+            "step": 7
         }
-    ]
+    ],
+    "step": 8
 }

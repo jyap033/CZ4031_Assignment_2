@@ -40,9 +40,7 @@ class interface:
             nodeDict = json.loads(qep_json)
             self.totalSteps = 0
             self.traverseCountStep(nodeDict)
-            print(self.totalSteps)
             self.traverseAddStep(nodeDict)
-            print(f"After adding step {nodeDict}")
             qep_json = json.dumps(nodeDict, indent=4)
             # print(f"qep_json: {node.to_json()}")
         except ValueError as e:
@@ -74,7 +72,7 @@ class interface:
         if not "children" in nodeDict:
             return
         else:
-            for i in range(len(nodeDict['children'])):
+            for i in range(len(nodeDict['children']) - 1, -1, -1):
                 self.traverseAddStep(nodeDict['children'][i])
 
     def gui(self):
