@@ -1,3 +1,15 @@
-Seq Scan on orders  (cost=0.00..36429.00 rows=1500000 width=116) (actual time=0.121..209.457 rows=1500000 loops=1)
-Planning Time: 0.545 ms
-Execution Time: 242.752 ms
+Limit  (cost=0.42..2.21 rows=5 width=14) (actual time=0.069..0.125 rows=5 loops=1)
+  ->  Nested Loop  (cost=0.42..218306002.53 rows=609244453 width=14) (actual time=0.068..0.124 rows=5 loops=1)
+        Join Filter: (c.c_nationkey = s.s_nationkey)
+        Rows Removed by Join Filter: 129
+        ->  Nested Loop  (cost=0.42..718340.68 rows=1498690 width=12) (actual time=0.027..0.028 rows=1 loops=1)
+              ->  Seq Scan on orders o  (cost=0.00..40179.00 rows=1499850 width=8) (actual time=0.018..0.018 rows=1 loops=1)
+                    Filter: (o_totalprice > '50'::numeric)
+              ->  Index Scan using customer_pkey on customer c  (cost=0.42..0.45 rows=1 width=8) (actual time=0.007..0.007 rows=1 loops=1)
+                    Index Cond: ((c_custkey = o.o_custkey) AND (c_custkey > 123))
+        ->  Materialize  (cost=0.00..378.39 rows=9679 width=10) (actual time=0.037..0.085 rows=134 loops=1)
+              ->  Seq Scan on supplier s  (cost=0.00..330.00 rows=9679 width=10) (actual time=0.035..0.059 rows=134 loops=1)
+                    Filter: (s_suppkey > 321)
+                    Rows Removed by Filter: 321
+Planning Time: 0.307 ms
+Execution Time: 0.151 ms

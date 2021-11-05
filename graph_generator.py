@@ -130,7 +130,9 @@ class GraphGenerator:
         return annotations
 
     def generate(self):
-
+        self.nodes = []
+        self.relation = []
+        self.matrix = []
         f = open('qep.json', )
         # open and load json data
         data = json.load(f)

@@ -1,21 +1,157 @@
 {
-    "name": "Seq Scan",
-    "table": "orders",
+    "name": "Limit",
     "estimated": {
         "cost": [
-            0.0,
-            36429.0
+            0.42,
+            2.21
         ],
-        "rows": 1500000,
-        "width": 116
+        "rows": 5,
+        "width": 14
     },
     "actual": {
         "actual_time": [
-            0.121,
-            209.457
+            0.069,
+            0.125
         ],
-        "rows": 1500000,
+        "rows": 5,
         "loops": 1
     },
-    "step": 1
+    "children": [
+        {
+            "name": "Nested Loop",
+            "estimated": {
+                "cost": [
+                    0.42,
+                    218306002.53
+                ],
+                "rows": 609244453,
+                "width": 14
+            },
+            "actual": {
+                "actual_time": [
+                    0.068,
+                    0.124
+                ],
+                "rows": 5,
+                "loops": 1
+            },
+            "Join_Filter": "(c.c_nationkey = s.s_nationkey)",
+            "Rows_Removed_by_Join_Filter": "129",
+            "children": [
+                {
+                    "name": "Nested Loop",
+                    "estimated": {
+                        "cost": [
+                            0.42,
+                            718340.68
+                        ],
+                        "rows": 1498690,
+                        "width": 12
+                    },
+                    "actual": {
+                        "actual_time": [
+                            0.027,
+                            0.028
+                        ],
+                        "rows": 1,
+                        "loops": 1
+                    },
+                    "children": [
+                        {
+                            "name": "Seq Scan",
+                            "table": "orders o",
+                            "estimated": {
+                                "cost": [
+                                    0.0,
+                                    40179.0
+                                ],
+                                "rows": 1499850,
+                                "width": 8
+                            },
+                            "actual": {
+                                "actual_time": [
+                                    0.018,
+                                    0.018
+                                ],
+                                "rows": 1,
+                                "loops": 1
+                            },
+                            "Filter": "(o_totalprice > '50'::numeric)",
+                            "step": 1
+                        },
+                        {
+                            "name": "Index Scan using customer_pkey",
+                            "table": "customer c",
+                            "estimated": {
+                                "cost": [
+                                    0.42,
+                                    0.45
+                                ],
+                                "rows": 1,
+                                "width": 8
+                            },
+                            "actual": {
+                                "actual_time": [
+                                    0.007,
+                                    0.007
+                                ],
+                                "rows": 1,
+                                "loops": 1
+                            },
+                            "Index_Cond": "((c_custkey = o.o_custkey) AND (c_custkey > 123))",
+                            "step": 2
+                        }
+                    ],
+                    "step": 3
+                },
+                {
+                    "name": "Materialize",
+                    "estimated": {
+                        "cost": [
+                            0.0,
+                            378.39
+                        ],
+                        "rows": 9679,
+                        "width": 10
+                    },
+                    "actual": {
+                        "actual_time": [
+                            0.037,
+                            0.085
+                        ],
+                        "rows": 134,
+                        "loops": 1
+                    },
+                    "children": [
+                        {
+                            "name": "Seq Scan",
+                            "table": "supplier s",
+                            "estimated": {
+                                "cost": [
+                                    0.0,
+                                    330.0
+                                ],
+                                "rows": 9679,
+                                "width": 10
+                            },
+                            "actual": {
+                                "actual_time": [
+                                    0.035,
+                                    0.059
+                                ],
+                                "rows": 134,
+                                "loops": 1
+                            },
+                            "Filter": "(s_suppkey > 321)",
+                            "Rows_Removed_by_Filter": "321",
+                            "step": 4
+                        }
+                    ],
+                    "step": 5
+                }
+            ],
+            "step": 6
+        }
+    ],
+    "step": 7
 }
