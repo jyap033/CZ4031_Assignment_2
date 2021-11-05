@@ -44,9 +44,13 @@ def parse_node(lines: List[str], cur_lvl_start="") -> Tuple[Node, int]:
         node = Node(node_name)
 
     splitted = costs.split(") (")
-    if len(splitted) == 2:
-        estimated_cost, actual_cost = splitted[0][1:], splitted[1][:-1]     # explain analyze
-    else:                           
+    if len(splitted) >= 2:
+        estimated_cost = splitted[0][1:]
+        if list(actual_parser.keys())[0] in splitted[1]:
+            actual_cost = splitted[1][:-1]                                  # explain analyze
+        else:
+            actual_cost = ""                                                # explain but with some other stuffs like (not estimated)
+    else:
         estimated_cost, actual_cost = splitted[0][1:-1], ""                 # explain
     estimated = {}
     for attr, parser in estimated_parser.items():
