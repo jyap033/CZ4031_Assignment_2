@@ -85,7 +85,7 @@ def parse_node(lines: List[str], cur_lvl_start="") -> Tuple[Node, int]:
             else:                                   # "Subplan"
                 subplan, next_index = parse_node(lines[line_idx+1:], cur_lvl_start=attr_start+BIG_STEP)
                 subplans.append(subplan)
-                line_idx += next_index
+                line_idx += next_index + 1
 
     if children:
         setattr(node, "children", children)
