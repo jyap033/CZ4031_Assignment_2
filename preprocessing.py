@@ -2,40 +2,36 @@ import psycopg2
 
 
 def connect():
-    """ Connect to the PostgreSQL database server, may raise (Exception, psycopg2.DatabaseError)"""
-
-    #Configurations
-    connection_string = "dbname=myfirstdb user=postgres password='admin'"
-    database_name = 'myfirstdb'
+    # Configurations
+    connection_string = "dbname=cz4031 user=postgres password='admin'"
+    database_name = 'cz4031'
     conn = None
 
-    # read connection parameters
-    # connect to the PostgreSQL server
     print('Connecting to the PostgreSQL database...')
 
-    ##
     conn = psycopg2.connect(connection_string)
     print('Connected')
 
-    # create a cursor
     cur = conn.cursor()
 
-    #Execute Query
     cur.execute("SELECT datname FROM pg_database;")
-
-    #Get Query Result
     list_database = cur.fetchall()
-
-    # cur.execute("EXPLAIN SELECT * FROM \"Movies\"")
-    cur.execute("EXPLAIN ANALYSE Select * From \"Movies\" m, \"Ratings\" r Where m.\"Name\" = R.\"Name\"")
-    print(cur.fetchall())
 
     if (database_name,) not in list_database:
         sqlCreateDatabase = "create database " + database_name + ";"
         cur.execute(sqlCreateDatabase)
-        # print("'{}' has been created successfully.".format(database_name))
-    #to be deleted
+
     else:
         print("{} database already exist.".format(database_name))
-    
-    return conn
+    cur.execute(
+        "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'")
+
+    list_tables = list(map(lambda x: x[0], cur.fetchall()))
+
+    table_dict = {}
+
+    for i in list_tables:
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE TABLE_NAME = '{}';".format(i))
+        column = list(map(lambda x: x[0], cur.fetchall()))
+        table_dict[i] = column
+    return conn, table_dict

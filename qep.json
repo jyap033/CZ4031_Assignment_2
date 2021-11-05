@@ -1,180 +1,21 @@
 {
-    "name": "Limit",
+    "name": "Seq Scan",
+    "table": "orders",
     "estimated": {
         "cost": [
             0.0,
-            1005.3
+            36429.0
         ],
-        "rows": 3,
-        "width": 410
+        "rows": 1500000,
+        "width": 116
     },
     "actual": {
         "actual_time": [
-            0.434,
-            0.52
+            0.121,
+            209.457
         ],
-        "rows": 3,
+        "rows": 1500000,
         "loops": 1
     },
-    "children": [
-        {
-            "name": "Nested Loop",
-            "estimated": {
-                "cost": [
-                    0.0,
-                    7104323735.09
-                ],
-                "rows": 21200510,
-                "width": 410
-            },
-            "actual": {
-                "actual_time": [
-                    0.433,
-                    0.518
-                ],
-                "rows": 3,
-                "loops": 1
-            },
-            "Join_Filter": "(c.c_nationkey = s.s_nationkey)",
-            "Rows_Removed_by_Join_Filter": "141",
-            "children": [
-                {
-                    "name": "Nested Loop",
-                    "estimated": {
-                        "cost": [
-                            0.0,
-                            7096374211.0
-                        ],
-                        "rows": 1497020,
-                        "width": 266
-                    },
-                    "actual": {
-                        "actual_time": [
-                            0.35,
-                            0.351
-                        ],
-                        "rows": 1,
-                        "loops": 1
-                    },
-                    "Join_Filter": "(c.c_custkey = o.o_custkey)",
-                    "Rows_Removed_by_Join_Filter": "310",
-                    "children": [
-                        {
-                            "name": "Seq Scan",
-                            "table": "customer c",
-                            "estimated": {
-                                "cost": [
-                                    0.0,
-                                    5460.0
-                                ],
-                                "rows": 149702,
-                                "width": 159
-                            },
-                            "actual": {
-                                "actual_time": [
-                                    0.059,
-                                    0.059
-                                ],
-                                "rows": 1,
-                                "loops": 1
-                            },
-                            "Filter": "(c_custkey > 321)",
-                            "Rows_Removed_by_Filter": "321",
-                            "step": 1
-                        },
-                        {
-                            "name": "Materialize",
-                            "estimated": {
-                                "cost": [
-                                    0.0,
-                                    73498.0
-                                ],
-                                "rows": 1500000,
-                                "width": 107
-                            },
-                            "actual": {
-                                "actual_time": [
-                                    0.028,
-                                    0.261
-                                ],
-                                "rows": 311,
-                                "loops": 1
-                            },
-                            "children": [
-                                {
-                                    "name": "Seq Scan",
-                                    "table": "orders o",
-                                    "estimated": {
-                                        "cost": [
-                                            0.0,
-                                            41095.0
-                                        ],
-                                        "rows": 1500000,
-                                        "width": 107
-                                    },
-                                    "actual": {
-                                        "actual_time": [
-                                            0.019,
-                                            0.066
-                                        ],
-                                        "rows": 311,
-                                        "loops": 1
-                                    },
-                                    "step": 2
-                                }
-                            ],
-                            "step": 3
-                        }
-                    ],
-                    "step": 4
-                },
-                {
-                    "name": "Materialize",
-                    "estimated": {
-                        "cost": [
-                            0.0,
-                            348.77
-                        ],
-                        "rows": 354,
-                        "width": 144
-                    },
-                    "actual": {
-                        "actual_time": [
-                            0.02,
-                            0.147
-                        ],
-                        "rows": 144,
-                        "loops": 1
-                    },
-                    "children": [
-                        {
-                            "name": "Seq Scan",
-                            "table": "supplier s",
-                            "estimated": {
-                                "cost": [
-                                    0.0,
-                                    347.0
-                                ],
-                                "rows": 354,
-                                "width": 144
-                            },
-                            "actual": {
-                                "actual_time": [
-                                    0.013,
-                                    0.083
-                                ],
-                                "rows": 144,
-                                "loops": 1
-                            },
-                            "Filter": "(s_suppkey < 355)",
-                            "step": 5
-                        }
-                    ],
-                    "step": 6
-                }
-            ],
-            "step": 7
-        }
-    ],
-    "step": 8
+    "step": 1
 }
