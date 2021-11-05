@@ -121,7 +121,7 @@ class GraphGenerator:
         for k in range(L):
             annotations.append(
                 dict(
-                    text=self.nodes[k][-4],  # or replace labels with a different list for the text within the circle
+                    text=self.nodes[k].split("|")[-2][7:],  # or replace labels with a different list for the text within the circle
                     x=pos[k][0], y=2 * M - position[k][1],
                     xref='x1', yref='y1',
                     font=dict(color=font_color, size=font_size),
