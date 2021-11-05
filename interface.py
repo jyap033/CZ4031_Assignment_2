@@ -13,13 +13,16 @@ class interface:
         self.window.title("cz4031 Project 2")
         self.generator = GraphGenerator()
 
+
         self.panel_1 = PanedWindow(bd=2, relief=RIDGE, height=350, width=500)
         self.panel_1_label = Label(self.panel_1, text="User input")
         self.panel_1_textarea = Text(self.panel_1, height=20, width=62)
-        self.panel_2 = PanedWindow(bd=2, relief=RIDGE, height=1010, width=500)
-        self.panel_2_textarea = Text(self.panel_2, height=20, width=62)
+
+        self.panel_2 = PanedWindow(bd=3, relief=RIDGE, height=350, width=1000)
+        self.panel_2_textarea = Text(self.panel_2, height=20, width=125)
         self.panel_2_label = Label(self.panel_2, text="Annotated Result")
-        self.panel_3 = PanedWindow(bd=2, relief=RIDGE, height=350, width=1010)
+
+        self.panel_3 = PanedWindow(bd=1, relief=RIDGE, height=355, width=500)
         self.panel_3_label = Label(self.panel_3, text="Schema")
         self.visualise_button = Button(self.window, text="Visualise", relief=RIDGE, font=("arial", 12, "bold"),
                                        width=20,
@@ -118,18 +121,18 @@ class interface:
         self.panel_1_textarea.pack()
 
         # panel2(annotated input)
-        self.panel_2.place(x=520, y=20)
+        self.panel_2.place(x=10, y=380)
         self.panel_2_textarea.configure(state='disabled')
         self.panel_2_label.config(font=("Courier", 14))
         self.panel_2_label.pack()
         self.panel_2_textarea.pack()
 
         # panel3(Schema)
-        self.panel_3.place(x=10, y=380)
+        self.panel_3.place(x=520, y=20)
         self.panel_3_label.config(font=("Courier", 14))
         self.panel_3_label.place(relx=0.0, rely=0.0)
 
-        self.visualise_button.place(x=810, y=340)
+        self.visualise_button.place(x=810, y=700)
         self.submit_button.place(x=300, y=340)
 
 
@@ -139,21 +142,17 @@ class interface:
 
         # create a treeview
         tree = ttk.Treeview(self.panel_3)
-
         tree.heading("#0", text='Schema', anchor='w')
 
         # adding data
         i = 0
         for (k, v) in (self.table_info.items()):
             tree.insert('', END, text=k, iid=i, open=False)
-            print("added parent: " + str(i))
             parent = i
             internal_i = 0
             for j in v:
                 i += 1
                 tree.insert('', END, text=j, iid=i, open=False)
-                print("added child: " + str(i))
-
                 tree.move(i, parent, internal_i)
                 internal_i += 1
             i += 1

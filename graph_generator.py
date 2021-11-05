@@ -24,6 +24,9 @@ class GraphGenerator:
             elif k == "children":
                 for j in v:
                     self.jsontonode(j, step)
+            elif k == "subplans":
+                for j in v:
+                    self.jsontonode(j, step)
             else:
                 node_string += "{} : {} | ".format(k, v)
 
