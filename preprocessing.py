@@ -1,10 +1,21 @@
+from typing import Dict
 import psycopg2
+
+def read_config(filename: str) -> Dict:
+    configs = {}
+    with open(filename) as config_file:
+        for line in config_file:
+            key, value = line.split("=")
+            configs[key] = value.rstrip("\n")
+    print(f"configs: {configs}")
+    return configs
 
 
 def connect():
     # Configurations
-    connection_string = "dbname=cz4031 user=postgres password='admin'"
-    database_name = 'cz4031'
+    configs = read_config("CONFIG.txt")
+    database_name = configs["DBNAME"]
+    connection_string = f"dbname={database_name} user={configs['USER']} password={configs['PASSWORD']}"
     conn = None
 
     print('Connecting to the PostgreSQL database...')
