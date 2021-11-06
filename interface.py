@@ -1,4 +1,4 @@
-# Codes for ui
+
 import json
 from tkinter import *
 from tkinter import ttk
@@ -16,11 +16,14 @@ class interface:
         self.panel_1 = PanedWindow(bd=2, relief=RIDGE, height=350, width=500)
         self.panel_1_label = Label(self.panel_1, text="User input")
         self.panel_1_textarea = Text(self.panel_1, height=20, width=62)
-        self.panel_2 = PanedWindow(bd=2, relief=RIDGE, height=1010, width=500)
-        self.panel_2_textarea = Text(self.panel_2, height=20, width=62)
+
+        self.panel_2 = PanedWindow(bd=2, relief=RIDGE, height=350, width=1010)
+        self.panel_2_textarea = Text(self.panel_2, height=20, width=125)
         self.panel_2_label = Label(self.panel_2, text="Annotated Result")
-        self.panel_3 = PanedWindow(bd=2, relief=RIDGE, height=350, width=1010)
+
+        self.panel_3 = PanedWindow(bd=2, relief=RIDGE, height=350, width=500)
         self.panel_3_label = Label(self.panel_3, text="Schema")
+
         self.visualise_button = Button(self.window, text="Visualise", relief=RIDGE, font=("arial", 12, "bold"),
                                        width=20,
                                        command=self.generator.generate, state='disable')
@@ -121,19 +124,19 @@ class interface:
         self.panel_1_textarea.pack()
 
         # panel2(annotated input)
-        self.panel_2.place(x=520, y=20)
+        self.panel_2.place(x=10, y=380)
         self.panel_2_textarea.configure(state='disabled')
         self.panel_2_label.config(font=("Courier", 14))
         self.panel_2_label.pack()
         self.panel_2_textarea.pack()
 
         # panel3(Schema)
-        self.panel_3.place(x=10, y=380)
+        self.panel_3.place(x=520, y=20)
         self.panel_3_label.config(font=("Courier", 14))
         self.panel_3_label.place(relx=0.0, rely=0.0)
 
-        self.visualise_button.place(x=810, y=340)
-        self.submit_button.place(x=300, y=340)
+        self.visualise_button.place(x=808, y=700)
+        self.submit_button.place(x=304, y=340)
 
         # configure the grid layout
         self.panel_3.rowconfigure(0, weight=1)

@@ -75,6 +75,7 @@ class GraphGenerator:
             Ye += [2 * M - position[edge[0]][1], 2 * M - position[edge[1]][1], None]
 
         labels = v_label
+        labels_name = list(map(lambda x : x.split("|")[0][6:], labels))
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=Xe,
                                  y=Ye,
@@ -91,8 +92,9 @@ class GraphGenerator:
                                              color='#6175c1',  # '#DB4551',
                                              line=dict(color='rgb(50,50,50)', width=1)
                                              ),
-                                 text=labels,
+                                 text=labels_name,
                                  hoverinfo='text',
+                                 hovertext=labels,
                                  opacity=0.8,
                                  textposition="bottom center"
                                  ))
