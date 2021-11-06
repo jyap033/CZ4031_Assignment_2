@@ -94,26 +94,22 @@ class interface:
 
     def traverseCountStep(self, nodeDict):
         self.totalSteps += 1
-        if not "children" in nodeDict:
-            return
-        else:
+        if "children" in nodeDict:
             for i in range(len(nodeDict['children'])):
                 self.traverseCountStep(nodeDict['children'][i])
-            if "subplans" in nodeDict:
-                for i in range(0, len(nodeDict['subplans'])):
-                    self.traverseCountStep(nodeDict['subplans'][i])
+        if "subplans" in nodeDict:
+            for i in range(0, len(nodeDict['subplans'])):
+                self.traverseCountStep(nodeDict['subplans'][i])
 
     ''' Traverse through parsed qep to add the step '''
 
     def traverseAddStep(self, nodeDict):
         nodeDict['step'] = self.totalSteps
         self.totalSteps -= 1
-        if not "children" in nodeDict:
-            return
-        else:
-            if "subplans" in nodeDict:
-                for i in range(len(nodeDict['subplans']) - 1, -1, -1):
-                    self.traverseAddStep(nodeDict['subplans'][i])
+        if "subplans" in nodeDict:
+            for i in range(len(nodeDict['subplans']) - 1, -1, -1):
+                self.traverseAddStep(nodeDict['subplans'][i])
+        if "children" in nodeDict:
             for i in range(len(nodeDict['children']) - 1, -1, -1):
                 self.traverseAddStep(nodeDict['children'][i])
 
