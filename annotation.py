@@ -36,12 +36,7 @@ def parse_node(lines: List[str], cur_lvl_start="") -> Tuple[Node, int]:
     else:
         raise ValueError(f"failed to parse line0 into node_name and costs: {lines[0]}")
 
-    if "Scan" in node_name:
-        node_name, table = node_name.split(" on ")
-        node = Node(node_name)
-        setattr(node, "table", table)
-    else:
-        node = Node(node_name)
+    node = Node(node_name)
 
     splitted = costs.split(") (")
     if len(splitted) >= 2:
