@@ -15,9 +15,9 @@ class GraphGenerator:
     def __init__(self):
         pass
 
-    ''' Converting JSON Data to nodes of parents and children '''
 
     def json_to_node(self, data, parent_step):
+        ''' Converting JSON Data to nodes of parents and children '''
         node_string = ""
         step = ""
 
@@ -40,9 +40,9 @@ class GraphGenerator:
             print('k,v: {}'.format(k, v))
         self.nodes.append(node_string)
 
-    ''' Visualisation of the actual tree of qep tree '''
 
     def plot(self, data):
+        ''' Visualisation of the actual tree of qep tree '''
         self.json_to_node(data, 0)
 
         # Building matrix of parent and
@@ -129,9 +129,9 @@ class GraphGenerator:
                           )
         fig.show()
 
-    ''' Include the annotations of that particular step of qep on hover '''
 
     def make_annotations(self, pos, text, M, position, font_size=10, font_color='rgb(250,250,250)'):
+        ''' Include the annotations of that particular step of qep on hover '''
         L = len(pos)
         if len(text) != L:
             raise ValueError('The lists pos and text must have the same len')
@@ -148,9 +148,9 @@ class GraphGenerator:
             )
         return annotations
 
-    ''' Initialisations '''
 
     def generate(self):
+        ''' Initialisations '''
         self.nodes = []
         self.relation = []
         self.matrix = []

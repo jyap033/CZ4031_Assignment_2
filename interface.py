@@ -1,8 +1,7 @@
 
-import json
 from tkinter import *
 from tkinter import ttk
-from annotation import parse_node
+from annotation import QepParser
 from graph_generator import GraphGenerator
 
 
@@ -12,6 +11,7 @@ class interface:
         self.window.geometry("1030x750")
         self.window.title("cz4031 Project 2")
         self.generator = GraphGenerator()
+        self.parser = QepParser()
 
         self.panel_1 = PanedWindow(bd=2, relief=RIDGE, height=350, width=500)
         self.panel_1_label = Label(self.panel_1, text="User input")
@@ -36,14 +36,14 @@ class interface:
         self.table_info = table_info
 
     def submit(self):
-        # save input
+        # save input (test.txt)
         text = self.panel_1_textarea.get("1.0", "end-1c")
         if not text.lower().startswith("explain"):
             text = f"explain analyze {text}"
         with open('test.txt', 'w') as file_object:
             file_object.write(text)
 
-        # save qep
+        # execute query
         try:
             self.db_cursor.execute(text)
             self.visualise_button.configure(state='active')
@@ -60,30 +60,30 @@ class interface:
             print("Exception TYPE:", type(err))
             return
 
+        # save original qep (qep.txt)
         qep_lines = []
         for (qep_line,) in self.db_cursor.fetchall():
             qep_lines.append(qep_line)
         with open('qep.txt', 'w') as file_object:
             for line in qep_lines:
-                print(line)
                 file_object.write(line + "\n")
 
-        # save parsed qep
+        # do parsing
         qep_json = ""
         try:
-            node, _ = parse_node(qep_lines)
+            node = self.parser.parse(qep_lines)
             qep_json = node.to_json_pretty()
-            ''' Iterate thru json and add steps '''
-            nodeDict = json.loads(qep_json)
-            self.totalSteps = 0
-            self.traverse_count_step(nodeDict)
-            print("total steps: ", self.totalSteps)
-            self.traverse_add_step(nodeDict)
-            qep_json = json.dumps(nodeDict, indent=4)
-            # print(f"qep_json: {node.to_json()}")
-        except ValueError as e:
-            print(f"got Exception: {e}")
+        except ValueError as err:
+            self.panel_2_textarea.configure(state='normal')
+            self.panel_2_textarea.delete('1.0', END)
+            self.panel_2_textarea.insert(END, err)
+            self.panel_2_textarea.configure(state='disabled')
+            self.visualise_button.configure(state='disabled')
+            print("Oops! An exception has occured:", err)
+            print("Exception TYPE:", type(err))
+            return
 
+        # save parsed qep (qep.json)
         with open('qep.json', 'w') as file_object:
             file_object.write(qep_json)
 
@@ -93,28 +93,6 @@ class interface:
         self.panel_2_textarea.insert(END, qep_json)
         self.panel_2_textarea.configure(state='disabled')
 
-    ''' Traverse through parsed qep to count steps'''
-
-    def traverse_count_step(self, nodeDict):
-        self.totalSteps += 1
-        if "children" in nodeDict:
-            for i in range(len(nodeDict['children'])):
-                self.traverse_count_step(nodeDict['children'][i])
-        if "subplans" in nodeDict:
-            for i in range(0, len(nodeDict['subplans'])):
-                self.traverse_count_step(nodeDict['subplans'][i])
-
-    ''' Traverse through parsed qep to add the step '''
-
-    def traverse_add_step(self, nodeDict):
-        nodeDict['step'] = self.totalSteps
-        self.totalSteps -= 1
-        if "subplans" in nodeDict:
-            for i in range(len(nodeDict['subplans']) - 1, -1, -1):
-                self.traverse_add_step(nodeDict['subplans'][i])
-        if "children" in nodeDict:
-            for i in range(len(nodeDict['children']) - 1, -1, -1):
-                self.traverse_add_step(nodeDict['children'][i])
 
     def initialise(self):
         # panel1(Userinput)
@@ -151,13 +129,11 @@ class interface:
         i = 0
         for (k, v) in (self.table_info.items()):
             tree.insert('', END, text=k, iid=i, open=False)
-            print("added parent: " + str(i))
             parent = i
             internal_i = 0
             for j in v:
                 i += 1
                 tree.insert('', END, text=j, iid=i, open=False)
-                print("added child: " + str(i))
 
                 tree.move(i, parent, internal_i)
                 internal_i += 1
