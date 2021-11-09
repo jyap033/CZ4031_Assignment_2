@@ -1,8 +1,8 @@
 
 from tkinter import *
 from tkinter import ttk
-from annotation import QepParser
-from graph_generator import GraphGenerator
+from utils import QepParser
+from annotation import GraphGenerator
 
 
 class interface:

@@ -1,107 +1,160 @@
-# generating the annotations
-
-from typing import Dict, List, Tuple
 import json
+from igraph import Graph, EdgeSeq
+import plotly.graph_objects as go
+
+'''
+Generate graph class
+'''
 
 
-class Node:
-    """A simple data structure that represents Operator node in QEP"""
-    def __init__(self, name) -> None:
-        self.name = name
+class GraphGenerator:
+    nodes = []
+    relation = []
+    matrix = []
 
-    def to_json_pretty(self) -> str:
-        return json.dumps(self, default=lambda x: x.__dict__, indent=4)
-
-    def to_dict(self) -> Dict:
-        return json.loads(json.dumps(self, default=lambda x: x.__dict__))
+    def __init__(self):
+        pass
 
 
-STEP = "  "
-BIG_STEP = STEP * 3
+    def json_to_node(self, data, parent_step):
+        ''' Converting JSON Data to nodes of parents and children '''
+        node_string = ""
+        step = ""
 
-
-class QepParser:
-    """Holds the methods that parse qep to tree of Nodes"""
-    total_steps = 0
-
-    def parse(self, lines: List[str], cur_lvl_start="") -> Node:
-        """Parse and add steps to the qep"""
-        node, _ = self._parse_to_node(lines, cur_lvl_start)
-        self.total_steps = 0
-        self._traverse_count_step(node)
-        self._traverse_add_step(node)
-        return node
-
-    def _parse_to_node(self, lines: List[str], cur_lvl_start="") -> Tuple[Node, int]:
-        """Parse the qep into a tree of Nodes"""
-        splitted = lines[0].lstrip().lstrip("->").lstrip().split("  ")
-        if len(splitted) == 2:
-            node_name, _ = splitted
-        else:
-            raise ValueError(
-                f"failed to parse node_name from line: {lines[0]}")
-
-        node = Node(node_name)
-        children = []
-        subplans = []
-        attr_start = cur_lvl_start + STEP
-        line_idx = 1
-
-        while line_idx < len(lines):
-            line = lines[line_idx]
-
-            # not within this node's scope
-            if not line.startswith(attr_start):
-                break
-
-            line_content = line[len(attr_start):]
-            # "->  HashAggregate  (cost=151746.99..151748.99, ...)"
-            if line_content.startswith("->"):
-                child, next_index = self._parse_to_node(
-                    lines[line_idx:], cur_lvl_start=cur_lvl_start+BIG_STEP)
-                children.append(child)
-                line_idx += next_index
+        if "step" in data:
+            step = data["step"]
+            self.relation.append((parent_step, step))
+        for (k, v) in data.items():
+            if k == "actual" or k == "estimated":
                 continue
-
-            splitted = line_content.split(": ")
-            # "Worker 1:  Sort Method: quicksort  Memory: 27kB" -> ignore
-            if len(splitted) > 2:
-                line_idx += 1
-            # "Rows Removed by Fileter: 1974218" -> add attribute
-            elif len(splitted) == 2:
-                setattr(node, splitted[0].replace(" ", "_"), splitted[1])
-                line_idx += 1
-            # "Subplan" -> parse subplan
+            #  Only visualise actual steps which are children and subplans
+            elif k == "children":
+                for j in v:
+                    self.json_to_node(j, step)
+            elif k == "subplans":
+                for j in v:
+                    self.json_to_node(j, step)
             else:
-                subplan, next_index = self._parse_to_node(
-                    lines[line_idx+1:], cur_lvl_start=attr_start+BIG_STEP)
-                subplans.append(subplan)
-                line_idx += next_index + 1
+                node_string += "{} : {} | ".format(k, v)
 
-        if children:
-            setattr(node, "children", children)
-        if subplans:
-            setattr(node, "subplans", subplans)
+            print('k,v: {}'.format(k, v))
+        self.nodes.append(node_string)
 
-        return node, line_idx
 
-    def _traverse_count_step(self, node):
-        ''' Traverse through parsed qep to count steps'''
-        self.total_steps += 1
-        if getattr(node, "children", None):
-            for i in range(len(node.children)):
-                self._traverse_count_step(node.children[i])
-        if getattr(node, "subplans", None):
-            for i in range(0, len(node.subplans)):
-                self._traverse_count_step(node.subplans[i])
+    def plot(self, data):
+        ''' Visualisation of the actual tree of qep tree '''
+        self.json_to_node(data, 0)
 
-    def _traverse_add_step(self, node):
-        ''' Traverse through parsed qep to add the step '''
-        setattr(node, "step", self.total_steps)
-        self.total_steps -= 1
-        if getattr(node, "subplans", None):
-            for i in range(len(node.subplans) - 1, -1, -1):
-                self._traverse_add_step(node.subplans[i])
-        if getattr(node, "children", None):
-            for i in range(len(node.children) - 1, -1, -1):
-                self._traverse_add_step(node.children[i])
+        # Building matrix of parent and
+        length = len(self.nodes)
+        for i in range(length):
+            temp = []
+            for i in range(length):
+                temp.append(0)
+            self.matrix.append(temp)
+        for i in self.relation:
+            parent = i[0] - 1
+            child = i[1] - 1
+            self.matrix[parent][child] = 1
+
+        v_label = self.nodes
+        nr_vertices = len(self.nodes)
+
+        # v_label = list(map(str, range(nr_vertices)))
+        # G = Graph.Tree(nr_vertices, 2)  # 2 stands for children number
+        G = Graph.Adjacency(self.matrix)
+        print("G: {}".format(G))
+        lay = G.layout('tree')
+
+        position = {k: lay[k] for k in range(nr_vertices)}
+        Y = [lay[k][1] for k in range(nr_vertices)]
+        M = max(Y)
+
+        # es = EdgeSeq(G)  # sequence of edges
+        E = [e.tuple for e in G.es]  # list of edges
+
+        L = len(position)
+        Xn = [position[k][0] for k in range(L)]
+        Yn = [2 * M - position[k][1] for k in range(L)]
+        Xe = []
+        Ye = []
+        for edge in E:
+            Xe += [position[edge[0]][0], position[edge[1]][0], None]
+            Ye += [2 * M - position[edge[0]][1],
+                   2 * M - position[edge[1]][1], None]
+
+        labels = v_label
+        labels_name = list(map(lambda x: x.split("|")[0][6:], labels))
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=Xe,
+                                 y=Ye,
+                                 mode='lines',
+                                 line=dict(color='rgb(210,210,210)', width=1),
+                                 hoverinfo='none'
+                                 ))
+        fig.add_trace(go.Scatter(x=Xn,
+                                 y=Yn,
+                                 mode='markers + text',
+                                 name='bla',
+                                 marker=dict(symbol='diamond',
+                                             size=18,
+                                             color='#6175c1',  # '#DB4551',
+                                             line=dict(
+                                                 color='rgb(50,50,50)', width=1)
+                                             ),
+                                 text=labels_name,
+                                 hoverinfo='text',
+                                 hovertext=labels,
+                                 opacity=0.8,
+                                 textposition="bottom center"
+                                 ))
+
+        fig.update_traces(textposition='top center')
+        axis = dict(showline=False,  # hide axis line, grid, ticklabels and  title
+                    zeroline=False,
+                    showgrid=False,
+                    showticklabels=True,
+                    )
+
+        fig.update_layout(title='Tree View of Query Plan',
+                          annotations=self.make_annotations(
+                              position, v_label, M, position),
+                          font_size=12,
+                          showlegend=False,
+                          xaxis=axis,
+                          yaxis=axis,
+                          margin=dict(l=40, r=40, b=85, t=100),
+                          hovermode='closest',
+                          plot_bgcolor='rgb(248,248,248)'
+                          )
+        fig.show()
+
+
+    def make_annotations(self, pos, text, M, position, font_size=10, font_color='rgb(250,250,250)'):
+        ''' Include the annotations of that particular step of qep on hover '''
+        L = len(pos)
+        if len(text) != L:
+            raise ValueError('The lists pos and text must have the same len')
+        annotations = []
+        for k in range(L):
+            annotations.append(
+                dict(
+                    # or replace labels with a different list for the text within the circle
+                    text=self.nodes[k].split("|")[-2][7:],
+                    x=pos[k][0], y=2 * M - position[k][1],
+                    xref='x1', yref='y1',
+                    font=dict(color=font_color, size=font_size),
+                    showarrow=False)
+            )
+        return annotations
+
+
+    def generate(self):
+        ''' Initialisations '''
+        self.nodes = []
+        self.relation = []
+        self.matrix = []
+        f = open('qep.json', )
+        # open and load json data
+        data = json.load(f)
+        self.plot(data)
