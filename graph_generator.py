@@ -2,6 +2,10 @@ import json
 from igraph import Graph, EdgeSeq
 import plotly.graph_objects as go
 
+'''
+Generate graph class
+'''
+
 
 class GraphGenerator:
     nodes = []
@@ -11,7 +15,9 @@ class GraphGenerator:
     def __init__(self):
         pass
 
-    def jsontonode(self, data, parent_step):
+    ''' Converting JSON Data to nodes of parents and children '''
+
+    def json_to_node(self, data, parent_step):
         node_string = ""
         step = ""
 
@@ -21,21 +27,25 @@ class GraphGenerator:
         for (k, v) in data.items():
             if k == "actual" or k == "estimated":
                 continue
+            #  Only visualise actual steps which are children and subplans
             elif k == "children":
                 for j in v:
-                    self.jsontonode(j, step)
+                    self.json_to_node(j, step)
             elif k == "subplans":
                 for j in v:
-                    self.jsontonode(j, step)
+                    self.json_to_node(j, step)
             else:
                 node_string += "{} : {} | ".format(k, v)
 
             print('k,v: {}'.format(k, v))
         self.nodes.append(node_string)
 
-    def plot(self, data):
-        self.jsontonode(data, 0)
+    ''' Visualisation of the actual tree of qep tree '''
 
+    def plot(self, data):
+        self.json_to_node(data, 0)
+
+        # Building matrix of parent and
         length = len(self.nodes)
         for i in range(length):
             temp = []
@@ -43,10 +53,8 @@ class GraphGenerator:
                 temp.append(0)
             self.matrix.append(temp)
         for i in self.relation:
-            print(i)
             parent = i[0] - 1
             child = i[1] - 1
-
             self.matrix[parent][child] = 1
 
         v_label = self.nodes
@@ -62,7 +70,7 @@ class GraphGenerator:
         Y = [lay[k][1] for k in range(nr_vertices)]
         M = max(Y)
 
-        es = EdgeSeq(G)  # sequence of edges
+        # es = EdgeSeq(G)  # sequence of edges
         E = [e.tuple for e in G.es]  # list of edges
 
         L = len(position)
@@ -72,10 +80,11 @@ class GraphGenerator:
         Ye = []
         for edge in E:
             Xe += [position[edge[0]][0], position[edge[1]][0], None]
-            Ye += [2 * M - position[edge[0]][1], 2 * M - position[edge[1]][1], None]
+            Ye += [2 * M - position[edge[0]][1],
+                   2 * M - position[edge[1]][1], None]
 
         labels = v_label
-        labels_name = list(map(lambda x : x.split("|")[0][6:], labels))
+        labels_name = list(map(lambda x: x.split("|")[0][6:], labels))
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=Xe,
                                  y=Ye,
@@ -90,7 +99,8 @@ class GraphGenerator:
                                  marker=dict(symbol='diamond',
                                              size=18,
                                              color='#6175c1',  # '#DB4551',
-                                             line=dict(color='rgb(50,50,50)', width=1)
+                                             line=dict(
+                                                 color='rgb(50,50,50)', width=1)
                                              ),
                                  text=labels_name,
                                  hoverinfo='text',
@@ -107,7 +117,8 @@ class GraphGenerator:
                     )
 
         fig.update_layout(title='Tree View of Query Plan',
-                          annotations=self.make_annotations(position, v_label, M, position),
+                          annotations=self.make_annotations(
+                              position, v_label, M, position),
                           font_size=12,
                           showlegend=False,
                           xaxis=axis,
@@ -118,6 +129,8 @@ class GraphGenerator:
                           )
         fig.show()
 
+    ''' Include the annotations of that particular step of qep on hover '''
+
     def make_annotations(self, pos, text, M, position, font_size=10, font_color='rgb(250,250,250)'):
         L = len(pos)
         if len(text) != L:
@@ -126,13 +139,16 @@ class GraphGenerator:
         for k in range(L):
             annotations.append(
                 dict(
-                    text=self.nodes[k].split("|")[-2][7:],  # or replace labels with a different list for the text within the circle
+                    # or replace labels with a different list for the text within the circle
+                    text=self.nodes[k].split("|")[-2][7:],
                     x=pos[k][0], y=2 * M - position[k][1],
                     xref='x1', yref='y1',
                     font=dict(color=font_color, size=font_size),
                     showarrow=False)
             )
         return annotations
+
+    ''' Initialisations '''
 
     def generate(self):
         self.nodes = []

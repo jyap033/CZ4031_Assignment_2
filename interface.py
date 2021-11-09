@@ -76,9 +76,9 @@ class interface:
             ''' Iterate thru json and add steps '''
             nodeDict = json.loads(qep_json)
             self.totalSteps = 0
-            self.traverseCountStep(nodeDict)
+            self.traverse_count_step(nodeDict)
             print("total steps: ", self.totalSteps)
-            self.traverseAddStep(nodeDict)
+            self.traverse_add_step(nodeDict)
             qep_json = json.dumps(nodeDict, indent=4)
             # print(f"qep_json: {node.to_json()}")
         except ValueError as e:
@@ -95,26 +95,26 @@ class interface:
 
     ''' Traverse through parsed qep to count steps'''
 
-    def traverseCountStep(self, nodeDict):
+    def traverse_count_step(self, nodeDict):
         self.totalSteps += 1
         if "children" in nodeDict:
             for i in range(len(nodeDict['children'])):
-                self.traverseCountStep(nodeDict['children'][i])
+                self.traverse_count_step(nodeDict['children'][i])
         if "subplans" in nodeDict:
             for i in range(0, len(nodeDict['subplans'])):
-                self.traverseCountStep(nodeDict['subplans'][i])
+                self.traverse_count_step(nodeDict['subplans'][i])
 
     ''' Traverse through parsed qep to add the step '''
 
-    def traverseAddStep(self, nodeDict):
+    def traverse_add_step(self, nodeDict):
         nodeDict['step'] = self.totalSteps
         self.totalSteps -= 1
         if "subplans" in nodeDict:
             for i in range(len(nodeDict['subplans']) - 1, -1, -1):
-                self.traverseAddStep(nodeDict['subplans'][i])
+                self.traverse_add_step(nodeDict['subplans'][i])
         if "children" in nodeDict:
             for i in range(len(nodeDict['children']) - 1, -1, -1):
-                self.traverseAddStep(nodeDict['children'][i])
+                self.traverse_add_step(nodeDict['children'][i])
 
     def initialise(self):
         # panel1(Userinput)
