@@ -36,13 +36,10 @@ class interface:
         self.table_info = table_info
 
     def submit(self):
-        # save input (test.txt)
+
         text = self.panel_1_textarea.get("1.0", "end-1c")
         if not text.lower().startswith("explain"):
             text = f"explain analyze {text}"
-        with open('test.txt', 'w') as file_object:
-            file_object.write(text)
-
         # execute query
         try:
             self.db_cursor.execute(text)

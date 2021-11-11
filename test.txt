@@ -1,1 +1,0 @@
-explain analyze SELECT C.c_custkey, O.o_orderkey, S.s_acctbal FROM customer C, orders O, supplier S WHERE C.c_custkey = O.o_custkey AND S.s_nationkey = C.c_nationkey AND C.c_custkey > 123 AND O.o_totalprice>50 AND S.s_suppkey > 321 LIMIT 5;
