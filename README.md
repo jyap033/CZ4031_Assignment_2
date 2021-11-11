@@ -15,9 +15,9 @@ A Python program that parses Postgres EXPLAIN output and provides visualisation 
 
 ## Project Structure
 
-- graph_generator.py **(EXTRA FILE)** -   Generates and displays the tree graph of the QEP.
-- annotation.py - Parses the query output to JSON format.
-- interface.py - Displays the Graphical User Interface
+- utils.py **(EXTRA FILE)** - Parses the query output to JSON format.
+- annotation.py - Generates and displays the tree graph of the QEP and create annotations.
+- interface.py - Displays the Graphical User Interface.
 - preprocessing.py - Connects the Postgres database to the application and Setup initial configurations.
 - project.py - Main file to run the application.
 
