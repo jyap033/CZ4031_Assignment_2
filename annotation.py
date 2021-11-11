@@ -1,12 +1,10 @@
 import json
-from igraph import Graph, EdgeSeq
+from igraph import Graph
 import plotly.graph_objects as go
 
 '''
 Generate graph class
 '''
-
-
 class GraphGenerator:
     nodes = []
     relation = []
@@ -45,7 +43,7 @@ class GraphGenerator:
         ''' Visualisation of the actual tree of qep tree '''
         self.json_to_node(data, 0)
 
-        # Building matrix of parent and
+        # Building matrix
         length = len(self.nodes)
         for i in range(length):
             temp = []
@@ -60,8 +58,6 @@ class GraphGenerator:
         v_label = self.nodes
         nr_vertices = len(self.nodes)
 
-        # v_label = list(map(str, range(nr_vertices)))
-        # G = Graph.Tree(nr_vertices, 2)  # 2 stands for children number
         G = Graph.Adjacency(self.matrix)
         print("G: {}".format(G))
         lay = G.layout('tree')
@@ -70,7 +66,6 @@ class GraphGenerator:
         Y = [lay[k][1] for k in range(nr_vertices)]
         M = max(Y)
 
-        # es = EdgeSeq(G)  # sequence of edges
         E = [e.tuple for e in G.es]  # list of edges
 
         L = len(position)
@@ -131,7 +126,7 @@ class GraphGenerator:
 
 
     def make_annotations(self, pos, text, M, position, font_size=10, font_color='rgb(250,250,250)'):
-        ''' Include the annotations of that particular step of qep on hover '''
+        ''' Include the annotations of that particular step of qep in node '''
         L = len(pos)
         if len(text) != L:
             raise ValueError('The lists pos and text must have the same len')
